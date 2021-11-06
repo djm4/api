@@ -66,8 +66,11 @@ services:
       KANSA_PG_PASSWORD: pwd
       HUGO_PG_PASSWORD: pwd
       RAAMI_PG_PASSWORD: pwd
+    ports:
+       - "8432:5432"
     volumes:
       - ../config/database/dev-people.sql:/docker-entrypoint-initdb.d/90-dev-people.sql:ro
       - ../config/database/fake-people.sql:/docker-entrypoint-initdb.d/91-fake-people.sql:ro
       - ../config/database/hugo-finalists.sql:/docker-entrypoint-initdb.d/90-hugo-finalists.sql:ro
       - ../config/database/payments.sql:/docker-entrypoint-initdb.d/90-payments.sql:ro
+      - ../config/database/hugo-nominations.sql:/docker-entrypoint-initdb.d/95-hugo-nominations.sql:ro

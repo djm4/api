@@ -671,9 +671,6 @@ COPY kansa.people (id, last_modified, membership, member_number, legal_name, pub
 660	2018-07-29 18:14:40.950855+00	Infant	688	Falkrunn Ungart	Falkrunn	Ungart	intricatemasonryyay@ymail.com	Waren	Kein	Denmark	\N	\N	\N	\N	\N
 \.
 
-ALTER TABLE kansa.people DROP COLUMN hugo_nominator;
-ALTER TABLE kansa.people DROP COLUMN hugo_voter;
-
 --
 -- Data for Name: log; Type: TABLE DATA; Schema: kansa; Owner: kansa
 --
