@@ -119,7 +119,7 @@ if (corsOrigins) app.use(cors({
   origin: corsOrigins.split(/[ ,]+/)
 }));
 app.use(session({
-  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 },  // 30 days
+  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000, sameSite: 'Strict' },  // 30 days
   name: config.id,
   resave: false,
   saveUninitialized: false,
