@@ -5,7 +5,7 @@ CREATE TABLE Nominations (
     time timestamptz DEFAULT now(),
     client_ip text NOT NULL,
     client_ua text,
-    person_id integer REFERENCES kansa.People NOT NULL,
+    person_id integer NOT NULL,
     signature text NOT NULL,
     competition Competition NOT NULL default 'Hugos',
     category Category NOT NULL,
