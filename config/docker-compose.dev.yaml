@@ -5,6 +5,9 @@ version: '2'
 # To use, run `make` in the project root or directly:
 #   docker-compose -f config/docker-compose.base.yaml -f config/docker-compose.dev.yaml up -d
 
+volumes:
+  pgdata:
+
 services:
   nginx:
     environment:
@@ -20,6 +23,9 @@ services:
       - ../nginx/ssl:/ssl:ro
 
   hugo:
+    entrypoint: ./wait-for-it.sh postgres:5432 -- npm start
+    links:
+      - postgres
     environment:
       CORS_ORIGIN: http://localhost:8080
       DATABASE_URL: postgres://hugo:pwd@postgres:5432/api
@@ -27,6 +33,9 @@ services:
       SESSION_SECRET: dev secret
 
   kansa:
+    entrypoint: ./wait-for-it.sh postgres:5432 -- npm start
+    links:
+      - postgres
     environment:
       CORS_ORIGIN: http://localhost:8080
       DATABASE_URL: postgres://kansa:pwd@postgres:5432/api
@@ -40,6 +49,9 @@ services:
       STRIPE_SECRET_APIKEY_siteselect: sk_test_35SiP34s6qovtenwPPLguIyY
 
   raami:
+    entrypoint: ./wait-for-it.sh postgres:5432 -- npm start
+    links:
+      - postgres
     environment:
       CORS_ORIGIN: http://localhost:8080
       DATABASE_URL: postgres://raami:pwd@postgres:5432/api
@@ -61,14 +73,34 @@ services:
       SENDGRID_APIKEY:
 
   postgres:
+    image: postgres:10.4
     environment:
+      PGDATA: /pgdata
+      PGUSER: admin
+      POSTGRES_DB: api
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: adminpwd
       KANSA_PG_PASSWORD: pwd
       HUGO_PG_PASSWORD: pwd
       RAAMI_PG_PASSWORD: pwd
+    expose:
+      - "5432"
     ports:
        - "8432:5432"
     volumes:
+      - pgdata:/pgdata
+      - ../postgres/init/10-admin-init.sql:/docker-entrypoint-initdb.d/10-admin-init.sql:ro
+      - ../postgres/init/20-kansa-init.sql:/docker-entrypoint-initdb.d/20-kansa-init.sql:ro
+      - ../postgres/init/22-kansa-tables.sql:/docker-entrypoint-initdb.d/22-kansa-tables.sql:ro
+      - ../postgres/init/25-day-passes.sql:/docker-entrypoint-initdb.d/25-day-passes.sql:ro
+      - ../postgres/init/25-payments.sql:/docker-entrypoint-initdb.d/25-payments.sql:ro
+      - ../postgres/init/25-public-data.sql:/docker-entrypoint-initdb.d/25-public-data.sql:ro
+      - ../postgres/init/28-siteselection.sql:/docker-entrypoint-initdb.d/28-siteselection.sql:ro
+      - ../postgres/init/30-hugo-init.sql:/docker-entrypoint-initdb.d/30-hugo-init.sql:ro
+      - ../postgres/init/32-hugo-tables.sql:/docker-entrypoint-initdb.d/32-hugo-tables.sql:ro
+      - ../postgres/init/40-raami-init.sql:/docker-entrypoint-initdb.d/40-raami-init.sql:ro
+      - ../config/database/31-hugo-categories.sql:/docker-entrypoint-initdb.d/31-hugo-categories.sql:ro
+      - ../config/database/membership-types.sql:/docker-entrypoint-initdb.d/29-membership-types.sql:ro
       - ../config/database/dev-people.sql:/docker-entrypoint-initdb.d/90-dev-people.sql:ro
       - ../config/database/fake-people.sql:/docker-entrypoint-initdb.d/91-fake-people.sql:ro
       - ../config/database/hugo-finalists.sql:/docker-entrypoint-initdb.d/90-hugo-finalists.sql:ro

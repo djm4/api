@@ -5,9 +5,6 @@ version: '2'
 # This config is not sufficient by itself; it's just the base layer.
 # For full config, see also docker-compose.{dev,prod}.yaml
 
-volumes:
-  pgdata:
-
 services:
   nginx:
     build: ../nginx
@@ -19,9 +16,6 @@ services:
 
   hugo:
     build: ../hugo
-    entrypoint: ./wait-for-it.sh postgres:5432 -- npm start
-    links:
-      - postgres
     expose:
       - "80"
     volumes:
@@ -29,10 +23,8 @@ services:
 
   kansa:
     build: ../kansa
-    entrypoint: ./wait-for-it.sh postgres:5432 -- npm start
     links:
       - kyyhky
-      - postgres
       - tarra
       - tuohi
     expose:
@@ -43,9 +35,6 @@ services:
 
   raami:
     build: ../raami
-    entrypoint: ./wait-for-it.sh postgres:5432 -- npm start
-    links:
-      - postgres
     expose:
       - "3000"
     volumes:
@@ -81,27 +70,3 @@ services:
     image: redis:4.0
     expose:
       - "6379"
-
-  postgres:
-    image: postgres:10.4
-    environment:
-      PGDATA: /pgdata
-      PGUSER: admin
-      POSTGRES_DB: api
-      POSTGRES_USER: admin
-    expose:
-      - "5432"
-    volumes:
-      - pgdata:/pgdata
-      - ../postgres/init/10-admin-init.sql:/docker-entrypoint-initdb.d/10-admin-init.sql:ro
-      - ../postgres/init/20-kansa-init.sql:/docker-entrypoint-initdb.d/20-kansa-init.sql:ro
-      - ../postgres/init/22-kansa-tables.sql:/docker-entrypoint-initdb.d/22-kansa-tables.sql:ro
-      - ../postgres/init/25-day-passes.sql:/docker-entrypoint-initdb.d/25-day-passes.sql:ro
-      - ../postgres/init/25-payments.sql:/docker-entrypoint-initdb.d/25-payments.sql:ro
-      - ../postgres/init/25-public-data.sql:/docker-entrypoint-initdb.d/25-public-data.sql:ro
-      - ../postgres/init/28-siteselection.sql:/docker-entrypoint-initdb.d/28-siteselection.sql:ro
-      - ../config/database/membership-types.sql:/docker-entrypoint-initdb.d/29-membership-types.sql:ro
-      - ../postgres/init/30-hugo-init.sql:/docker-entrypoint-initdb.d/30-hugo-init.sql:ro
-      - ../config/database/31-hugo-categories.sql:/docker-entrypoint-initdb.d/31-hugo-categories.sql:ro
-      - ../postgres/init/32-hugo-tables.sql:/docker-entrypoint-initdb.d/32-hugo-tables.sql:ro
-      - ../postgres/init/40-raami-init.sql:/docker-entrypoint-initdb.d/40-raami-init.sql:ro
